@@ -8,7 +8,7 @@ export function PageShell({ children }: { children: ReactNode }) {
       <div
         className="pointer-events-none fixed inset-0 -z-10 opacity-[0.10]"
         style={{
-          backgroundImage: `url(${villa})`,
+          backgroundImage: `url(${livingRoom})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

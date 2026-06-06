@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { TopNav } from "./TopNav";
-import villa from "@/assets/luxury-villa-hero.jpg";
+import livingRoom from "@/assets/living-room-bg.jpg";
 
 export function PageShell({ children }: { children: ReactNode }) {
   return (

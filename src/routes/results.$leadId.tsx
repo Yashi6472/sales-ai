@@ -43,7 +43,7 @@ function ProgressBar({ value, label, sub }: { value: number; label: string; sub?
         <span className="text-sm">{label}</span>
         <span className="text-xs text-gold font-mono">{value}%</span>
       </div>
-      <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+      <div className="h-1.5 bg-foreground/5 rounded-full overflow-hidden">
         <div className="h-full bg-gradient-to-r from-gold-soft to-gold rounded-full" style={{ width: `${value}%` }} />
       </div>
       {sub && <p className="text-[11px] text-muted-foreground mt-1">{sub}</p>}
@@ -55,7 +55,7 @@ function Panel({ icon: Icon, title, children, defaultOpen = true }: any) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <section className="glass rounded-2xl overflow-hidden animate-fade-up">
-      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between p-5 hover:bg-white/[0.02] transition">
+      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between p-5 hover:bg-foreground/[0.02] transition">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold/10 border border-gold/20 text-gold">
             <Icon className="h-4.5 w-4.5" />
@@ -153,7 +153,7 @@ function ResultsPage() {
           <Panel icon={ShieldAlert} title="Objections Detected">
             <div className="space-y-3">
               {objections.map((o, i) => (
-                <div key={i} className="flex gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                <div key={i} className="flex gap-3 p-3 rounded-xl bg-foreground/[0.02] border border-foreground/5">
                   <span className="text-[10px] uppercase tracking-wider text-gold mt-0.5">{o.type}</span>
                   <div className="flex-1">
                     <p className="text-sm">{o.text}</p>
@@ -206,7 +206,7 @@ function ResultsPage() {
               <ProgressBar value={80} label="Pitch Clarity" />
               <ProgressBar value={88} label="Objection Handling" />
               <ProgressBar value={75} label="Closing Strength" />
-              <p className="text-xs text-muted-foreground border-t border-white/5 pt-3">
+              <p className="text-xs text-muted-foreground border-t border-foreground/5 pt-3">
                 <span className="text-[color:var(--success)]">Strength:</span> Empathetic reframing of price objection.<br />
                 <span className="text-gold">Coaching:</span> Push for soft commitment before ending call.
               </p>

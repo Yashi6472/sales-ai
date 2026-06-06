@@ -75,16 +75,16 @@ function AnalyzePage() {
                 onClick={() => toggle(m.id)}
                 style={{ animationDelay: `${i * 40}ms` }}
                 className={`group glass relative overflow-hidden rounded-2xl p-5 text-left transition-all duration-300 animate-fade-up hover:-translate-y-0.5 ${
-                  active ? "border-gold/50 shadow-[var(--shadow-gold)] bg-gold/[0.04]" : "hover:border-white/20"
+                  active ? "border-gold/50 shadow-[var(--shadow-gold)] bg-gold/[0.04]" : "hover:border-foreground/20"
                 }`}
               >
                 {active && <div className="absolute inset-0 bg-gradient-to-br from-gold/10 to-transparent pointer-events-none" />}
                 <div className="relative flex items-start justify-between">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-lg border ${active ? "bg-gold/10 border-gold/30 text-gold" : "bg-white/5 border-white/10 text-muted-foreground"}`}>
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-lg border ${active ? "bg-gold/10 border-gold/30 text-gold" : "bg-foreground/5 border-foreground/10 text-muted-foreground"}`}>
                     <Icon className="h-5 w-5" />
                   </div>
-                  <div className={`h-5 w-5 rounded-md border flex items-center justify-center transition ${active ? "bg-gold border-gold" : "border-white/20"}`}>
-                    {active && <Icons.Check className="h-3.5 w-3.5 text-background" strokeWidth={3} />}
+                  <div className={`h-5 w-5 rounded-md border flex items-center justify-center transition ${active ? "bg-gold border-gold" : "border-foreground/20"}`}>
+                    {active && <Icons.Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />}
                   </div>
                 </div>
                 <h3 className="relative font-display text-lg mt-4">{m.name}</h3>
@@ -114,7 +114,7 @@ function AnalyzePage() {
                   <div className="flex gap-1.5">
                     <button
                       onClick={() => setPrompts((p) => ({ ...p, [m.id]: defaultPrompts[m.id] }))}
-                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-gold px-2 py-1 rounded-md hover:bg-white/5 transition"
+                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-gold px-2 py-1 rounded-md hover:bg-foreground/5 transition"
                     >
                       <RotateCcw className="h-3 w-3" /> Reset
                     </button>
@@ -127,7 +127,7 @@ function AnalyzePage() {
                   value={prompts[m.id]}
                   onChange={(e) => setPrompts((p) => ({ ...p, [m.id]: e.target.value }))}
                   rows={4}
-                  className="w-full resize-y bg-black/30 border border-white/10 rounded-xl p-3 text-sm font-mono leading-relaxed text-foreground/90 outline-none focus:border-gold/40 focus:ring-2 focus:ring-gold/10 transition"
+                  className="w-full resize-y bg-foreground/5 border border-foreground/10 rounded-xl p-3 text-sm font-mono leading-relaxed text-foreground/90 outline-none focus:border-gold/40 focus:ring-2 focus:ring-gold/10 transition"
                 />
               </div>
             ))}
@@ -148,7 +148,7 @@ function AnalyzePage() {
           <button
             onClick={runAnalysis}
             disabled={running || selected.size === 0}
-            className="relative flex items-center gap-3 rounded-2xl bg-gradient-to-r from-gold to-gold-soft px-8 py-4 text-base font-medium text-background shadow-[var(--shadow-gold)] disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 animate-pulse-glow transition"
+            className="relative flex items-center gap-3 rounded-2xl bg-gradient-to-r from-gold to-gold-soft px-8 py-4 text-base font-medium text-white shadow-[var(--shadow-gold)] disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 animate-pulse-glow transition"
           >
             {running ? (
               <>
@@ -166,7 +166,7 @@ function AnalyzePage() {
 
         {running && (
           <div className="relative mt-6">
-            <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-foreground/5 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-gold to-gold-soft transition-all duration-100"
                 style={{ width: `${progress}%` }}

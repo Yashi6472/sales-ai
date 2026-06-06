@@ -25,7 +25,7 @@ export function StatCard({ label, value, delta, icon: Icon, accent = "gold" }: P
           <p className="mt-3 font-display text-4xl text-foreground">{value}</p>
           {delta && <p className="mt-1 text-xs text-[color:var(--success)]">{delta}</p>}
         </div>
-        <div className={`flex h-11 w-11 items-center justify-center rounded-xl bg-white/[0.04] border border-white/10 ${accentMap[accent].split(" ").pop()}`}>
+        <div className={`flex h-11 w-11 items-center justify-center rounded-xl bg-foreground/[0.04] border border-foreground/10 ${accentMap[accent].split(" ").pop()}`}>
           <Icon className="h-5 w-5" />
         </div>
       </div>

@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ResultsLeadIdRouteImport } from './routes/results.$leadId'
+import { Route as AnalyzeLeadIdRouteImport } from './routes/analyze.$leadId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResultsLeadIdRoute = ResultsLeadIdRouteImport.update({
+  id: '/results/$leadId',
+  path: '/results/$leadId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalyzeLeadIdRoute = AnalyzeLeadIdRouteImport.update({
+  id: '/analyze/$leadId',
+  path: '/analyze/$leadId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/analyze/$leadId': typeof AnalyzeLeadIdRoute
+  '/results/$leadId': typeof ResultsLeadIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/analyze/$leadId': typeof AnalyzeLeadIdRoute
+  '/results/$leadId': typeof ResultsLeadIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/analyze/$leadId': typeof AnalyzeLeadIdRoute
+  '/results/$leadId': typeof ResultsLeadIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/analyze/$leadId' | '/results/$leadId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/analyze/$leadId' | '/results/$leadId'
+  id: '__root__' | '/' | '/analyze/$leadId' | '/results/$leadId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnalyzeLeadIdRoute: typeof AnalyzeLeadIdRoute
+  ResultsLeadIdRoute: typeof ResultsLeadIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +68,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/results/$leadId': {
+      id: '/results/$leadId'
+      path: '/results/$leadId'
+      fullPath: '/results/$leadId'
+      preLoaderRoute: typeof ResultsLeadIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analyze/$leadId': {
+      id: '/analyze/$leadId'
+      path: '/analyze/$leadId'
+      fullPath: '/analyze/$leadId'
+      preLoaderRoute: typeof AnalyzeLeadIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnalyzeLeadIdRoute: AnalyzeLeadIdRoute,
+  ResultsLeadIdRoute: ResultsLeadIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

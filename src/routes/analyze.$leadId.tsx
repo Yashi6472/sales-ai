@@ -60,79 +60,75 @@ function AnalyzePage() {
         </p>
       </header>
 
-      {/* Modules */}
+      {/* Modules with inline prompts */}
       <section className="mt-10">
-        <h2 className="font-display text-2xl mb-1">1. Select Modules</h2>
-        <p className="text-sm text-muted-foreground mb-5">Choose which AI modules to run on this conversation.</p>
+        <h2 className="font-display text-2xl mb-1">Select AI Modules</h2>
+        <p className="text-sm text-muted-foreground mb-5">Click a module to enable it and customize its prompt instantly.</p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {moduleCatalog.map((m, i) => {
             const Icon = (Icons as unknown as Record<string, Icons.LucideIcon>)[m.icon] ?? Icons.Sparkles;
             const active = selected.has(m.id);
             return (
-              <button
+              <div
                 key={m.id}
-                onClick={() => toggle(m.id)}
                 style={{ animationDelay: `${i * 40}ms` }}
-                className={`group glass relative overflow-hidden rounded-2xl p-5 text-left transition-all duration-300 animate-fade-up hover:-translate-y-0.5 ${
-                  active ? "border-gold/50 shadow-[var(--shadow-gold)] bg-gold/[0.04]" : "hover:border-foreground/20"
+                className={`glass relative overflow-hidden rounded-2xl transition-all duration-300 animate-fade-up ${
+                  active ? "border-gold/50 shadow-[var(--shadow-gold)] bg-gold/[0.04]" : "border-transparent hover:border-foreground/20"
                 }`}
               >
-                {active && <div className="absolute inset-0 bg-gradient-to-br from-gold/10 to-transparent pointer-events-none" />}
-                <div className="relative flex items-start justify-between">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-lg border ${active ? "bg-gold/10 border-gold/30 text-gold" : "bg-foreground/5 border-foreground/10 text-muted-foreground"}`}>
-                    <Icon className="h-5 w-5" />
+                <button
+                  onClick={() => toggle(m.id)}
+                  className="w-full text-left p-5 group"
+                >
+                  {active && <div className="absolute inset-0 bg-gradient-to-br from-gold/10 to-transparent pointer-events-none" />}
+                  <div className="relative flex items-start justify-between">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-lg border ${active ? "bg-gold/10 border-gold/30 text-gold" : "bg-foreground/5 border-foreground/10 text-muted-foreground"}`}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div className={`h-5 w-5 rounded-md border flex items-center justify-center transition ${active ? "bg-gold border-gold" : "border-foreground/20"}`}>
+                      {active && <Icons.Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />}
+                    </div>
                   </div>
-                  <div className={`h-5 w-5 rounded-md border flex items-center justify-center transition ${active ? "bg-gold border-gold" : "border-foreground/20"}`}>
-                    {active && <Icons.Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />}
+                  <h3 className="relative font-display text-lg mt-4">{m.name}</h3>
+                  <p className="relative text-xs text-muted-foreground mt-1 leading-relaxed">{m.description}</p>
+                </button>
+
+                {active && (
+                  <div className="px-5 pb-5 animate-fade-up">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium text-gold/80">Prompt</span>
+                      <div className="flex gap-1.5">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPrompts((p) => ({ ...p, [m.id]: defaultPrompts[m.id] }));
+                          }}
+                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-gold px-2 py-1 rounded-md hover:bg-foreground/5 transition"
+                        >
+                          <RotateCcw className="h-3 w-3" /> Reset
+                        </button>
+                        <button
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex items-center gap-1 text-xs text-gold hover:text-foreground px-2 py-1 rounded-md hover:bg-gold/10 transition"
+                        >
+                          <Save className="h-3 w-3" /> Save
+                        </button>
+                      </div>
+                    </div>
+                    <textarea
+                      value={prompts[m.id]}
+                      onChange={(e) => setPrompts((p) => ({ ...p, [m.id]: e.target.value }))}
+                      onClick={(e) => e.stopPropagation()}
+                      rows={4}
+                      className="w-full resize-y bg-foreground/5 border border-foreground/10 rounded-xl p-3 text-sm font-mono leading-relaxed text-foreground/90 outline-none focus:border-gold/40 focus:ring-2 focus:ring-gold/10 transition"
+                    />
                   </div>
-                </div>
-                <h3 className="relative font-display text-lg mt-4">{m.name}</h3>
-                <p className="relative text-xs text-muted-foreground mt-1 leading-relaxed">{m.description}</p>
-              </button>
+                )}
+              </div>
             );
           })}
         </div>
-      </section>
-
-      {/* Prompts */}
-      <section className="mt-12">
-        <h2 className="font-display text-2xl mb-1">2. Prompt Customization</h2>
-        <p className="text-sm text-muted-foreground mb-5">Fine-tune the instructions for each selected module.</p>
-
-        {selected.size === 0 ? (
-          <div className="glass rounded-2xl p-10 text-center text-muted-foreground">
-            <Sparkles className="h-8 w-8 mx-auto text-gold/40 mb-2" />
-            Select at least one module to customize its prompt.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {moduleCatalog.filter((m) => selected.has(m.id)).map((m) => (
-              <div key={m.id} className="glass rounded-2xl p-5 animate-fade-up">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-display text-lg">{m.name} Prompt</h3>
-                  <div className="flex gap-1.5">
-                    <button
-                      onClick={() => setPrompts((p) => ({ ...p, [m.id]: defaultPrompts[m.id] }))}
-                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-gold px-2 py-1 rounded-md hover:bg-foreground/5 transition"
-                    >
-                      <RotateCcw className="h-3 w-3" /> Reset
-                    </button>
-                    <button className="flex items-center gap-1 text-xs text-gold hover:text-foreground px-2 py-1 rounded-md hover:bg-gold/10 transition">
-                      <Save className="h-3 w-3" /> Save
-                    </button>
-                  </div>
-                </div>
-                <textarea
-                  value={prompts[m.id]}
-                  onChange={(e) => setPrompts((p) => ({ ...p, [m.id]: e.target.value }))}
-                  rows={4}
-                  className="w-full resize-y bg-foreground/5 border border-foreground/10 rounded-xl p-3 text-sm font-mono leading-relaxed text-foreground/90 outline-none focus:border-gold/40 focus:ring-2 focus:ring-gold/10 transition"
-                />
-              </div>
-            ))}
-          </div>
-        )}
       </section>
 
       {/* Run */}

@@ -1,19 +1,19 @@
-import { useState } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useRef, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import * as Icons from "lucide-react";
 import { ArrowLeft, Sparkles, Save, RotateCcw, Loader2 } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
+import { AnalysisReport } from "@/components/AnalysisReport";
 import { leads, moduleCatalog, defaultPrompts, type ModuleId } from "@/lib/leads-data";
 
 export const Route = createFileRoute("/analyze/$leadId")({
-  head: () => ({ meta: [{ title: "AI Call Analysis Configuration — MaisonAI" }] }),
+  head: () => ({ meta: [{ title: "AI Call Analysis — MaisonAI" }] }),
   component: AnalyzePage,
   notFoundComponent: () => <PageShell><p>Lead not found.</p></PageShell>,
 });
 
 function AnalyzePage() {
   const { leadId } = Route.useParams();
-  const navigate = useNavigate();
   const lead = leads.find((l) => l.id === leadId) ?? leads[0];
 
   const [selected, setSelected] = useState<Set<ModuleId>>(
@@ -22,11 +22,15 @@ function AnalyzePage() {
   const [prompts, setPrompts] = useState<Record<string, string>>({ ...defaultPrompts });
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [analyzed, setAnalyzed] = useState(false);
+
+  const resultsRef = useRef<HTMLDivElement | null>(null);
 
   const toggle = (id: ModuleId) => {
     setSelected((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };
@@ -34,11 +38,18 @@ function AnalyzePage() {
   const runAnalysis = () => {
     setRunning(true);
     setProgress(0);
+    setAnalyzed(false);
     const interval = setInterval(() => {
       setProgress((p) => {
         if (p >= 100) {
           clearInterval(interval);
-          setTimeout(() => navigate({ to: "/results/$leadId", params: { leadId: lead.id } }), 300);
+          setTimeout(() => {
+            setRunning(false);
+            setAnalyzed(true);
+            setTimeout(() => {
+              resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 80);
+          }, 250);
           return 100;
         }
         return p + 4;
@@ -63,7 +74,7 @@ function AnalyzePage() {
       {/* Modules with inline prompts */}
       <section className="mt-10">
         <h2 className="font-display text-2xl mb-1">Select AI Modules</h2>
-        <p className="text-sm text-muted-foreground mb-5">Click a module to enable it and customize its prompt instantly.</p>
+        <p className="text-sm text-muted-foreground mb-5">Click a module to enable it — its prompt box appears only after selection.</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {moduleCatalog.map((m, i) => {
@@ -74,12 +85,12 @@ function AnalyzePage() {
                 key={m.id}
                 style={{ animationDelay: `${i * 40}ms` }}
                 className={`glass relative overflow-hidden rounded-2xl transition-all duration-300 animate-fade-up ${
-                  active ? "border-gold/50 shadow-[var(--shadow-gold)] bg-gold/[0.04]" : "border-transparent hover:border-foreground/20"
+                  active ? "border-gold/50 shadow-[var(--shadow-gold)] bg-gold/[0.04]" : "hover:border-foreground/20"
                 }`}
               >
                 <button
                   onClick={() => toggle(m.id)}
-                  className="w-full text-left p-5 group"
+                  className="w-full text-left p-5 group cursor-pointer"
                 >
                   {active && <div className="absolute inset-0 bg-gradient-to-br from-gold/10 to-transparent pointer-events-none" />}
                   <div className="relative flex items-start justify-between">
@@ -87,7 +98,7 @@ function AnalyzePage() {
                       <Icon className="h-5 w-5" />
                     </div>
                     <div className={`h-5 w-5 rounded-md border flex items-center justify-center transition ${active ? "bg-gold border-gold" : "border-foreground/20"}`}>
-                      {active && <Icons.Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />}
+                      {active && <Icons.Check className="h-3.5 w-3.5 text-background" strokeWidth={3} />}
                     </div>
                   </div>
                   <h3 className="relative font-display text-lg mt-4">{m.name}</h3>
@@ -104,13 +115,13 @@ function AnalyzePage() {
                             e.stopPropagation();
                             setPrompts((p) => ({ ...p, [m.id]: defaultPrompts[m.id] }));
                           }}
-                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-gold px-2 py-1 rounded-md hover:bg-foreground/5 transition"
+                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-gold px-2 py-1 rounded-md hover:bg-foreground/5 transition cursor-pointer"
                         >
                           <RotateCcw className="h-3 w-3" /> Reset
                         </button>
                         <button
                           onClick={(e) => e.stopPropagation()}
-                          className="flex items-center gap-1 text-xs text-gold hover:text-foreground px-2 py-1 rounded-md hover:bg-gold/10 transition"
+                          className="flex items-center gap-1 text-xs text-gold hover:text-foreground px-2 py-1 rounded-md hover:bg-gold/10 transition cursor-pointer"
                         >
                           <Save className="h-3 w-3" /> Save
                         </button>
@@ -144,7 +155,7 @@ function AnalyzePage() {
           <button
             onClick={runAnalysis}
             disabled={running || selected.size === 0}
-            className="relative flex items-center gap-3 rounded-2xl bg-gradient-to-r from-gold to-gold-soft px-8 py-4 text-base font-medium text-white shadow-[var(--shadow-gold)] disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 animate-pulse-glow transition"
+            className="relative flex items-center gap-3 rounded-2xl bg-gradient-to-r from-gold to-gold-soft px-8 py-4 text-base font-medium text-background shadow-[var(--shadow-gold)] disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 animate-pulse-glow transition cursor-pointer"
           >
             {running ? (
               <>
@@ -154,7 +165,7 @@ function AnalyzePage() {
             ) : (
               <>
                 <Sparkles className="h-5 w-5" />
-                Run AI Analysis
+                {analyzed ? "Re-run Analysis" : "Run AI Analysis"}
               </>
             )}
           </button>
@@ -177,6 +188,18 @@ function AnalyzePage() {
           </div>
         )}
       </section>
+
+      {/* Inline results — same page, smooth scroll */}
+      {analyzed && (
+        <div ref={resultsRef} className="mt-14 animate-fade-up">
+          <div className="mb-6">
+            <p className="text-xs uppercase tracking-[0.3em] text-gold/80">Analysis Results</p>
+            <h2 className="font-display text-3xl md:text-4xl mt-2">Call Intelligence Report</h2>
+            <p className="text-sm text-muted-foreground mt-1">All sections are collapsed. Tap any section header to expand.</p>
+          </div>
+          <AnalysisReport lead={lead} />
+        </div>
+      )}
     </PageShell>
   );
 }

@@ -2,9 +2,8 @@ import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowLeft, Download, Search, Phone, MessageCircle, Bell, FileText,
-  MapPin, Home, Wallet, Calendar, Clock, Flame, Target, ChevronDown,
-  Check, X, AlertTriangle, ShieldAlert, Sparkles, TrendingUp, Award,
-  ClipboardCheck, GitBranch, Heart, CheckCircle2, Circle,
+  MapPin, Home, Wallet, Calendar, Clock, Flame, Target,
+  Check, X, AlertTriangle, Sparkles, Heart, CheckCircle2,
 } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { leads } from "@/lib/leads-data";

@@ -1,0 +1,37 @@
+{
+  "qualification": [
+    {
+      "id": "budget",
+      "question": "Did the agent ask about budget?",
+      "score": 10
+    },
+    {
+      "id": "location",
+      "question": "Did the agent ask about preferred location?",
+      "score": 10
+    },
+    {
+      "id": "timeline",
+      "question": "Did the agent ask about buying timeline?",
+      "score": 10
+    },
+    {
+      "id": "property_type",
+      "question": "Did the agent ask about property type?",
+      "score": 10
+    }
+  ],
+
+  "closing": [
+    {
+      "id": "site_visit",
+      "question": "Did the agent attempt to schedule a site visit?",
+      "score": 10
+    },
+    {
+      "id": "follow_up",
+      "question": "Did the agent secure follow-up commitment?",
+      "score": 10
+    }
+  ]
+}

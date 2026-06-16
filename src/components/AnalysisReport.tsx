@@ -5,6 +5,7 @@ import {
   Check, X, AlertTriangle, Sparkles, Heart, CheckCircle2,
 } from "lucide-react";
 import type { Lead } from "@/lib/leads-data";
+import type { AnalysisResult } from "@/services/api";
 
 /* ---------- Dummy data ---------- */
 
@@ -247,7 +248,24 @@ function AccordionSection({
 
 /* ---------- Report ---------- */
 
-export function AnalysisReport({ lead }: { lead: Lead }) {
+function ResultList({ items }: { items?: string[] }) {
+  if (!items || items.length === 0) {
+    return <p className="text-sm text-muted-foreground">No items returned.</p>;
+  }
+
+  return (
+    <ul className="space-y-2 text-sm">
+      {items.map((item, index) => (
+        <li key={`${item}-${index}`} className="flex items-start gap-2">
+          <Check className="h-4 w-4 text-[color:var(--success)] mt-0.5 shrink-0" />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export function AnalysisReport({ lead, result }: { lead: Lead; result?: AnalysisResult | null }) {
   const stageScores = useMemo(
     () => stages.map((s) => ({ id: s.id, score: s.params.filter((p) => p.status === "met").length, max: s.max })),
     []
@@ -294,7 +312,67 @@ export function AnalysisReport({ lead }: { lead: Lead }) {
       </AccordionSection>
 
       {/* Section 2 — Call Stage Analysis */}
-      <AccordionSection n={2} title="Call Stage Analysis" sub={`Overall conversation score ${totalScore} / ${totalMax}`}>
+      {result && (
+        <AccordionSection n={2} title="AI Output" sub={result.message} defaultOpen>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <Panel className="lg:col-span-2">
+              <p className="text-[10px] uppercase tracking-wider text-gold/80 mb-2">Summary</p>
+              <p className="text-sm leading-relaxed text-foreground/90">{result.summary}</p>
+            </Panel>
+
+            <Panel>
+              <p className="text-[10px] uppercase tracking-wider text-gold/80 mb-2">Call Stage</p>
+              <p className="text-sm leading-relaxed text-foreground/90">{result.call_stage_analysis}</p>
+            </Panel>
+
+            <Panel>
+              <p className="text-[10px] uppercase tracking-wider text-gold/80 mb-2">Lead Quality</p>
+              <p className="text-sm leading-relaxed text-foreground/90">{result.lead_quality}</p>
+            </Panel>
+
+            <Panel>
+              <p className="text-[10px] uppercase tracking-wider text-gold/80 mb-2">Buyer Signals</p>
+              <ResultList items={result.buyer_signals} />
+            </Panel>
+
+            <Panel>
+              <p className="text-[10px] uppercase tracking-wider text-gold/80 mb-2">Objections</p>
+              <ResultList items={result.objections} />
+            </Panel>
+
+            <Panel>
+              <p className="text-[10px] uppercase tracking-wider text-gold/80 mb-2">Risk Flags</p>
+              <ResultList items={result.risk_flags} />
+            </Panel>
+
+            <Panel>
+              <p className="text-[10px] uppercase tracking-wider text-gold/80 mb-2">BANT</p>
+              <p className="text-sm leading-relaxed text-foreground/90">{result.bant_analysis}</p>
+            </Panel>
+
+            <Panel>
+              <p className="text-[10px] uppercase tracking-wider text-gold/80 mb-2">Deal Probability</p>
+              <div className="font-display text-4xl text-gold-gradient mt-1">{result.deal_probability}%</div>
+            </Panel>
+
+            <Panel>
+              <p className="text-[10px] uppercase tracking-wider text-gold/80 mb-2">Agent Score</p>
+              <p className="text-sm leading-relaxed text-foreground/90">{result.agent_score}</p>
+            </Panel>
+
+            {result.transcript && (
+              <Panel className="lg:col-span-2">
+                <p className="text-[10px] uppercase tracking-wider text-gold/80 mb-2">Transcript</p>
+                <pre className="max-h-96 overflow-auto whitespace-pre-wrap rounded-xl bg-foreground/5 p-4 text-xs leading-relaxed text-foreground/85">
+                  {result.transcript}
+                </pre>
+              </Panel>
+            )}
+          </div>
+        </AccordionSection>
+      )}
+
+      <AccordionSection n={result ? 3 : 2} title="Call Stage Analysis" sub={`Overall conversation score ${totalScore} / ${totalMax}`}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {stages.map((stage, idx) => {
             const score = stageScores[idx].score;

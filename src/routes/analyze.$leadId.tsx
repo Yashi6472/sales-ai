@@ -1,10 +1,11 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import * as Icons from "lucide-react";
 import { ArrowLeft, Sparkles, Save, RotateCcw, Loader2 } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { AnalysisReport } from "@/components/AnalysisReport";
-import { leads, moduleCatalog, defaultPrompts, type ModuleId } from "@/lib/leads-data";
+import { leads as fallbackLeads, moduleCatalog, defaultPrompts, type Lead, type ModuleId } from "@/lib/leads-data";
+import { analyzeCall, getPostCalls, type AnalysisResult } from "@/services/api";
 
 export const Route = createFileRoute("/analyze/$leadId")({
   head: () => ({ meta: [{ title: "AI Call Analysis — MaisonAI" }] }),
@@ -14,7 +15,8 @@ export const Route = createFileRoute("/analyze/$leadId")({
 
 function AnalyzePage() {
   const { leadId } = Route.useParams();
-  const lead = leads.find((l) => l.id === leadId) ?? leads[0];
+  const [leads, setLeads] = useState<Lead[]>(fallbackLeads);
+  const lead = leads.find((l) => l.id === leadId) ?? fallbackLeads.find((l) => l.id === leadId) ?? leads[0] ?? fallbackLeads[0];
 
   const [selected, setSelected] = useState<Set<ModuleId>>(
     new Set(["summary", "quality", "intent", "objection", "bant"] as ModuleId[])
@@ -23,8 +25,20 @@ function AnalyzePage() {
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [analyzed, setAnalyzed] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   const resultsRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    getPostCalls()
+      .then((backendLeads) => {
+        if (backendLeads.length > 0) setLeads(backendLeads);
+      })
+      .catch(() => {
+        setLeads(fallbackLeads);
+      });
+  }, []);
 
   const toggle = (id: ModuleId) => {
     setSelected((prev) => {
@@ -35,26 +49,31 @@ function AnalyzePage() {
     });
   };
 
-  const runAnalysis = () => {
+  const runAnalysis = async () => {
     setRunning(true);
     setProgress(0);
     setAnalyzed(false);
-    const interval = setInterval(() => {
-      setProgress((p) => {
-        if (p >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            setRunning(false);
-            setAnalyzed(true);
-            setTimeout(() => {
-              resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }, 80);
-          }, 250);
-          return 100;
-        }
-        return p + 4;
-      });
-    }, 80);
+    setAnalysisResult(null);
+    setAnalysisError(null);
+
+    const interval = window.setInterval(() => {
+      setProgress((p) => Math.min(92, p + 4));
+    }, 120);
+
+    try {
+      const result = await analyzeCall({ lead, selected, prompts });
+      setAnalysisResult(result);
+      setProgress(100);
+      setAnalyzed(true);
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+    } catch (error) {
+      setAnalysisError(error instanceof Error ? error.message : "Analysis request failed");
+    } finally {
+      window.clearInterval(interval);
+      setRunning(false);
+    }
   };
 
   return (
@@ -187,6 +206,12 @@ function AnalyzePage() {
             </p>
           </div>
         )}
+
+        {analysisError && (
+          <p className="relative mt-4 text-sm text-destructive">
+            {analysisError}. Make sure the FastAPI backend is running on http://localhost:8000.
+          </p>
+        )}
       </section>
 
       {/* Inline results — same page, smooth scroll */}
@@ -197,7 +222,7 @@ function AnalyzePage() {
             <h2 className="font-display text-3xl md:text-4xl mt-2">Call Intelligence Report</h2>
             <p className="text-sm text-muted-foreground mt-1">All sections are collapsed. Tap any section header to expand.</p>
           </div>
-          <AnalysisReport lead={lead} />
+          <AnalysisReport lead={lead} result={analysisResult} />
         </div>
       )}
     </PageShell>

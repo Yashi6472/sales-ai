@@ -1,11 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, BarChart3, Sparkles, Settings, Building2 } from "lucide-react";
+import { LayoutDashboard, Building2 } from "lucide-react";
 
 const items = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/analytics", label: "Analytics", icon: BarChart3 },
-  { to: "/modules", label: "AI Modules", icon: Sparkles },
-  { to: "/settings", label: "Settings", icon: Settings },
 ];
 
 export function TopNav() {
